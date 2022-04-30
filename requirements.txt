@@ -1,0 +1,8 @@
+pydantic~=1.9.0
+validators~=0.18.2
+fastapi~=0.75.2
+requests~=2.25.1
+kafka-python
+psycopg2-binary
+python-dotenv
+uvicorn>=0.15.0,<0.16.0

@@ -1,0 +1,12 @@
+FROM python:3.9.12
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/common ./common/
+COPY resources ./resources
+
+COPY src/server ./
+
+ENTRYPOINT [ "uvicorn", "--reload" ,"server.py:app", "--port 80" ]

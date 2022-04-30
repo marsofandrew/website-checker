@@ -1,0 +1,9 @@
+*.pem
+*.cert
+*.key
+resources/security/**
+resources/security/*
+**/.pytest_cache/
+**/__pycache__/**
+.idea/
+.idea/**

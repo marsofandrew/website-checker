@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    env_file:
+      - resources/security/creds.env
+    ports:
+      - "80:80"
+  writer:
+    build:
+      context: .
+      dockerfile: Dockerfile-writer
+    env_file:
+      - resources/security/creds.env
