@@ -7,11 +7,14 @@ from datetime import datetime
 from threading import Thread
 
 import requests
+import urllib3
 from kafka import KafkaProducer
 
 from common.constants import ADD_METRIC
 from common.database.models import MetricModel
 from common.dto import WebsiteCheckerDto
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class WebsiteChecker:
@@ -24,6 +27,7 @@ class WebsiteChecker:
 
         self._producer = KafkaProducer(bootstrap_servers=servers,
                                        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                                       key_serializer=str.encode,
                                        security_protocol="SSL",
                                        ssl_cafile=ssl_ca_file, ssl_certfile=ssl_certificate,
                                        ssl_keyfile=ssl_keyfile)
@@ -44,7 +48,7 @@ class WebsiteChecker:
             checker.run_check()
             start_sleep_time = datetime.utcnow()
 
-            while (checker._website_checker.website_checker.update_interval > math.ceil(
+            while (checker._website_checker.website_checker.update_interval >= math.ceil(
                     (datetime.utcnow() - start_sleep_time).total_seconds())) and checker.is_run:
                 time.sleep(1)
 
@@ -83,7 +87,6 @@ class WebsiteChecker:
             self._logger.error("ERROR (run_check): {}".format(err))
             self._handle_exception_in_check(err)
 
-        print(check.to_dict())
         self._producer.send(self._topic, check.to_dict(), key=ADD_METRIC)
 
     def _handle_exception_in_check(self, err: Exception) -> None:

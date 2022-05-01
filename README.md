@@ -15,6 +15,8 @@ DB_PASSWORD=Apassword
 docker-compose up 
 ```
 
+By default, app will start on localhost:80.
+
 ## How to interact
 User could create regular expressions (regexp) by sending `POST /regexp`.
 If user needs they may use that regexp in creation of website_checker (`POST /website_checker`).

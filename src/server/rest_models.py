@@ -4,7 +4,6 @@ from common.database.models import WebsiteCheckerModel, RegExpModel
 from pydantic import BaseModel
 
 
-@dataclass
 class WebsiteCheckerRestModel(BaseModel):
     url: str
     update_interval: int  # in seconds
@@ -15,7 +14,6 @@ class WebsiteCheckerRestModel(BaseModel):
         return WebsiteCheckerModel(None, self.url, self.update_interval, self.regexp_id, self.is_run)
 
 
-@dataclass
 class RegExpRestModel(BaseModel):
     regexp: str
 

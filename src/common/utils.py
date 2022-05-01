@@ -8,7 +8,7 @@ from common.database.repository.base_repository import BasePostgreSQlRepository
 
 
 def configure_logger():
-    logging.config.fileConfig("resources/logger_config.conf")
+    logging.config.fileConfig("resources/logger_config.conf", disable_existing_loggers=False)
 
 
 def create_db(config: Config):
@@ -30,3 +30,18 @@ def start_up():
     config = get_config()
     create_db(config)
     return config
+
+
+def log_errors(logger: logging.Logger):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            try:
+                logger.debug(f"Run {function.__name__}")
+                return function(*args, **kwargs)
+            except Exception as err:
+                logger.error("Error: {}".format(err))
+                raise err
+
+        return wrapper
+
+    return decorator

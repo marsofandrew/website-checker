@@ -5,4 +5,4 @@ requests~=2.25.1
 kafka-python
 psycopg2-binary
 python-dotenv
-uvicorn>=0.15.0,<0.16.0
+uvicorn

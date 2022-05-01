@@ -7,3 +7,5 @@ resources/security/*
 **/__pycache__/**
 .idea/
 .idea/**
+target/
+target/**

@@ -1,4 +1,4 @@
-FROM python:3.9.12
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 WORKDIR /app
 
 COPY requirements.txt ./
@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/common ./common/
 COPY resources ./resources
 
-COPY src/server ./
+COPY src/server ./server/
 
-ENTRYPOINT [ "uvicorn", "--reload" ,"server.py:app", "--port 80" ]
+CMD ["uvicorn", "server.server:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+

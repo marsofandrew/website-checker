@@ -1,6 +1,7 @@
 import unittest
-from common.database.models import MetricModel
 from datetime import datetime
+
+from common.database.models import MetricModel
 
 
 class TestMetricModel(unittest.TestCase):

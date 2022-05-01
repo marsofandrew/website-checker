@@ -28,7 +28,6 @@ def add_metric(metric: dict):
     check = MetricModel.from_dict(metric)
     try:
         _logger.debug("Try to write {}".format(check))
-        print(check)
         _metrics_repo.insert(check)
         _logger.info("Wrote new metric")
     except Exception as err:
@@ -52,7 +51,7 @@ ACTIONS_BY_KEY = {
 
 
 def handle_message(message):
-    action = ACTIONS_BY_KEY.get(message.key)
+    action = ACTIONS_BY_KEY.get(message.key.decode("utf-8"))
     if action:
         action(message.value)
     else:

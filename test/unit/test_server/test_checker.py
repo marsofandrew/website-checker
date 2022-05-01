@@ -1,13 +1,12 @@
-import time
 import unittest
 from unittest.mock import patch
 
 from requests.models import Response
 
+from common.database.models import MetricModel
 from common.database.models import WebsiteCheckerModel
 from common.dto import WebsiteCheckerDto
 from server.checker import WebsiteChecker
-from common.database.models import MetricModel
 
 
 class TestWebsiteChecker(unittest.TestCase):

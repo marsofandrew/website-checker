@@ -95,9 +95,12 @@ class BasePostgreSQlRepository(RepositoryInterface, abc.ABC):
         def exec_and_fetch(cursor):
             cursor.execute(SQL("SELECT * FROM {} WHERE id = %s").format(Identifier(self._table)), (id,))
             return cursor.fetchone()
-
-        query = self._run_query(exec_and_fetch)
-        return self._to_model(query)
+        try:
+            query = self._run_query(exec_and_fetch)
+            return self._to_model(query)
+        except psycopg2.errors.InvalidTextRepresentation as err:
+            _logger.error("ERROR: {}".format(err))
+            return None
 
     def get_all(self) -> List[AbstractModel]:
         def execute_and_fetch(cursor):

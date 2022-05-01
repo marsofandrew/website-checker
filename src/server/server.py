@@ -7,15 +7,15 @@ import validators
 from fastapi import FastAPI, status, HTTPException
 from kafka import KafkaProducer
 
-from checker import WebsiteChecker
+from server.checker import WebsiteChecker
 from common.constants import REMOVE_WEBSITE_CHECKER
 from common.database.models import WebsiteCheckerModel
 from common.database.repository.errors import RowStillInUse
 from common.database.repository.repositories import WebsiteCheckerRepository, MetricRepository, RegExpRepository
 from common.dto import WebsiteCheckerRemoveDto
-from common.utils import start_up
-from rest_models import WebsiteCheckerRestModel, RegExpRestModel, CreateResponse
-from website_checker_is import WebsiteCheckerIS
+from common.utils import start_up, log_errors
+from server.rest_models import WebsiteCheckerRestModel, RegExpRestModel, CreateResponse
+from server.website_checker_is import WebsiteCheckerIS
 
 WEBSITE_CHECKER = "/website_checker"
 METRIC = "/metric"
@@ -75,11 +75,13 @@ app = FastAPI(title="Website checker", docs_url="/swaggerui")
 _logger.info("APP is started")
 
 
+@log_errors(_logger)
 @app.get(WEBSITE_CHECKER)
 def get_websites() -> List[dict]:
     return [model.to_dict() for model in _website_checker_repo.get_all()]
 
 
+@log_errors(_logger)
 @app.get(WEBSITE_CHECKER + "/{id}")
 def get_website(id: str) -> dict:
     website_checker = _website_checker_repo.get(id)
@@ -88,6 +90,7 @@ def get_website(id: str) -> dict:
     return website_checker.to_dict()
 
 
+@log_errors(_logger)
 @app.post(WEBSITE_CHECKER, response_model=CreateResponse, status_code=status.HTTP_201_CREATED)
 async def create_website_checker(website_checker: WebsiteCheckerRestModel) -> CreateResponse:
     if website_checker.update_interval <= 0:
@@ -103,6 +106,7 @@ async def create_website_checker(website_checker: WebsiteCheckerRestModel) -> Cr
     return CreateResponse(website_checker_id)
 
 
+@log_errors(_logger)
 @app.delete(WEBSITE_CHECKER + "/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_website_checker(id: str) -> None:
     website_checker = _website_checker_repo.get(id)
@@ -116,12 +120,14 @@ async def delete_website_checker(id: str) -> None:
     _producer.send(settings.topic, WebsiteCheckerRemoveDto(id), key=REMOVE_WEBSITE_CHECKER)
 
 
+@log_errors(_logger)
 @app.post(WEBSITE_CHECKER + "/{id}/stop", status_code=status.HTTP_204_NO_CONTENT)
 async def website_stop(id: str):
     _update_website_checker(id, False)
     CHECKERS.get(id).stop()
 
 
+@log_errors(_logger)
 @app.post(WEBSITE_CHECKER + "/stop", status_code=status.HTTP_204_NO_CONTENT)
 async def website_stop():
     checkers = _website_checker_repo.get_all()
@@ -130,6 +136,7 @@ async def website_stop():
         CHECKERS.get(checker.id).stop()
 
 
+@log_errors(_logger)
 @app.post(WEBSITE_CHECKER + "/{id}/start", status_code=status.HTTP_204_NO_CONTENT)
 async def website_start(id: str):
     website_checker = _update_website_checker(id, True)
@@ -137,11 +144,13 @@ async def website_start(id: str):
         start_checker(website_checker)
 
 
+@log_errors(_logger)
 @app.get(METRIC)
 async def get_metrics() -> List[dict]:
     return [model.to_dict() for model in _metrics_repo.get_all()]
 
 
+@log_errors(_logger)
 @app.get(METRIC + "/{website_checker_id}")
 async def get_metrics_by_website(website_checker_id: str) -> List[dict]:
     website_checker = _website_checker_repo.get(website_checker_id)
@@ -150,11 +159,13 @@ async def get_metrics_by_website(website_checker_id: str) -> List[dict]:
     return [model.to_dict() for model in _metrics_repo.get_by_website_checker_id(website_checker_id)]
 
 
+@log_errors(_logger)
 @app.get(REGEXP)
 async def get_regexps() -> List[dict]:
     return [model.to_dict() for model in _regexp_repo.get_all()]
 
 
+@log_errors(_logger)
 @app.get(REGEXP + "/{id}")
 async def get_regexp(id: str) -> dict:
     regexp = _regexp_repo.get(id)
@@ -163,12 +174,14 @@ async def get_regexp(id: str) -> dict:
     return regexp.to_dict()
 
 
+@log_errors(_logger)
 @app.post(REGEXP, response_model=CreateResponse, status_code=status.HTTP_201_CREATED)
 async def create_regexp(regexp: RegExpRestModel):
     regexp_id = _regexp_repo.insert(regexp.to_model())
     return CreateResponse(regexp_id)
 
 
+@log_errors(_logger)
 @app.delete(REGEXP + "/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_regexp(id: str) -> None:
     regexp = _regexp_repo.get(id)
